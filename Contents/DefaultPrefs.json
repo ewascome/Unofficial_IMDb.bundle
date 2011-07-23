@@ -3,6 +3,24 @@
     "id":"imdb_poster",
     "label":"Use poster from IMDb",
     "type":"bool",
+    "default":"false"
+  },
+  {
+    "id":"tomatoes",
+    "label":"Use Tomato Meter for Rating",
+    "type":"bool",
     "default":"true"
+  },
+  {
+    "id":"tomatoes_reviews",
+    "label":"No Reviews before using",
+    "type":"text",
+    "default":"50"
+  },
+  {
+    "id":"collection",
+    "label":"Add 'Certified Fresh' Collection",
+    "type":"bool",
+    "default":"false"
   }
 ]

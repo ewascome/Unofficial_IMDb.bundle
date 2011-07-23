@@ -6,7 +6,7 @@ def Start():
   HTTP.Headers['Referer'] = 'http://www.imdb.com/'
 
 class UnofficialImdbApi(Agent.Movies):
-  name = 'Unofficial IMDb API'
+  name = '*Unofficial IMDb API'
   languages = [Locale.Language.English]
   primary_provider = False
   contributes_to = ['com.plexapp.agents.imdb']
@@ -16,7 +16,7 @@ class UnofficialImdbApi(Agent.Movies):
     results.Append(MetadataSearchResult(id=imdbid, score=99))
 
   def update(self, metadata, media, lang):
-    url = 'http://www.imdbapi.com/?i=%s&plot=full' % metadata.id
+    url = 'http://www.imdbapi.com/?i=%s&plot=full&tomatoes=true' % metadata.id
 
     try:
       movie = JSON.ObjectFromURL(url, sleep=2.0)
@@ -32,8 +32,11 @@ class UnofficialImdbApi(Agent.Movies):
         metadata.originally_available_at = Datetime.ParseDate(movie['Released']).date()
 
         metadata.genres.clear()
+        kids = ['Animation','Family']
         for genre in movie['Genre'].split(','):
           metadata.genres.add(genre.strip())
+          if genre.strip() in kids:
+            metadata.collections.add("Kid's Movies")
 
         metadata.writers.clear()
         for writer in movie['Writer'].split(','):
@@ -49,7 +52,16 @@ class UnofficialImdbApi(Agent.Movies):
           role.actor = actor.strip()
 
         metadata.summary = movie['Plot']
+        
         metadata.rating = float(movie['Rating'])
+        
+        if Prefs['collection']:
+          if movie['tomatoImage'] == 'certified':
+            metadata.collections.add("Rotten Tomatoes 'Certified Fresh'")
+        
+        if Prefs['tomatoes']:
+          if int(movie['tomatoReviews']) > int(Prefs['tomatoes_reviews']):
+            metadata.rating = float(movie['tomatoMeter']) / 10
 
         duration = 0
         try:
